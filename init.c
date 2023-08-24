@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soleil <soleil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ilona <ilona@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/20 18:25:45 by soleil            #+#    #+#             */
-/*   Updated: 2023/08/20 19:25:11 by soleil           ###   ########.fr       */
+/*   Updated: 2023/08/24 14:41:42 by ilona            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosopher.h"
+
 
 
 void init_philo(t_data *data)
@@ -47,14 +48,16 @@ int init_fourchette(t_data *data)
 		data->philos[i].r_fork = &data->fourchette[i - 1];
 		i++;
 	}
+    printf("salutttttttt\n");
     return (0);
 }
 
 int	alloc(t_data *data)
 {
+    
 	data->tid = malloc(sizeof(pthread_t) * data->nombre_philo);
 	if (!data->tid)
-		return (error(1));
+		return (1);
 	data->fourchette = malloc(sizeof(pthread_mutex_t) * data->nombre_philo);
 	if (!data->fourchette)
 		return (1);
@@ -64,32 +67,36 @@ int	alloc(t_data *data)
 	return (0);
 }
 
-int init_data(t_data *data,char **av)
+int init_data(t_data *data,int ac, char **av)
 {
+    
     data->nombre_philo = atoi(av[1]);
     data->temps_mort = atoi(av[2]);
     data->temps_repas = atoi(av[3]);
     data->temps_repos = atoi(av[4]);
-    if(av == 6)
+    if(ac == 6)
         data->nombre_repas = atoi(av[5]);
     else
         data->nombre_repas = -1;
-    if (data->nombre_philo <= 0 || data->nombre_philo > 200 || data->temps_mort < 0
-		|| data->temps_repas < 0 || data->temps_repos < 0)
+    if (data->nombre_philo <= 0 || data->nombre_philo > 200 || data->temps_mort <= 0
+		|| data->temps_repas <= 0 || data->temps_repos <= 0)
             return (1);
     data->mort = 0;
     data->finis = 0;
     pthread_mutex_init(&data->write, NULL);
 	pthread_mutex_init(&data->lock, NULL);
+
+    return (0);
 }
 
 int init(t_data *data,int ac, char **av)
 {
-    if(init_data(data,av))
+    
+    if(init_data(data,ac,av))
         return (1);
-    if(alloc(data))
+    else if(alloc(data))
         return(1);
-    if(init_fourchette(data))
+    else if(init_fourchette(data))
         return(1);
     init_philo(data);
     return (0);
