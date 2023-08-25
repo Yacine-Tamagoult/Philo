@@ -4,6 +4,7 @@ OBJDIR = points_o
 SRCS = main.c \
 	init.c \
 	tools.c \
+	action.c \
 
 OBJS = $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.c=.o)))
 

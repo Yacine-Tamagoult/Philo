@@ -3,23 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ilona <ilona@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yatamago <yatamago@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/20 18:19:56 by soleil            #+#    #+#             */
-/*   Updated: 2023/08/24 16:22:55 by ilona            ###   ########.fr       */
+/*   Updated: 2023/08/25 23:19:57 by yatamago         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosopher.h"
-
 
 void *test(void *pp)
 {
 	t_philo *philo;
 
 	philo = (t_philo *) pp;
-	printf("salut je suis le philos n. : %i tu va bien ?\n", philo->id);
-	return NULL;
+	int i = 0;
+	while(i != 2)
+	{
+		eat(philo);
+		i++;
+	}
+	return (NULL);
 }
 
 int thread_init(t_data *data)
@@ -45,9 +49,6 @@ int thread_init(t_data *data)
 	}
 	return (0);
 }
-
-
-
 
 int main(int ac, char **av)
 {

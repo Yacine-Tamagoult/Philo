@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosopher.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ilona <ilona@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yatamago <yatamago@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/20 17:47:23 by soleil            #+#    #+#             */
-/*   Updated: 2023/08/24 14:54:36 by ilona            ###   ########.fr       */
+/*   Updated: 2023/08/25 23:18:18 by yatamago         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <stdbool.h>
 # include <pthread.h>
 # include <sys/time.h>
+#include <string.h>
 
 typedef struct s_philo
 {
@@ -53,3 +54,5 @@ int get_time(void);
 int init(t_data *data,int ac, char **av);
 int thread_init(t_data *data);
 void *test();
+void message(char *str, t_philo *philo);
+void eat(t_philo *philo);
