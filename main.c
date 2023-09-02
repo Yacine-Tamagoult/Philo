@@ -3,65 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yatamago <yatamago@student.42.fr>          +#+  +:+       +#+        */
+/*   By: soleil <soleil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/20 18:19:56 by soleil            #+#    #+#             */
-/*   Updated: 2023/08/25 23:19:57 by yatamago         ###   ########.fr       */
+/*   Updated: 2023/09/02 13:03:11 by soleil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosopher.h"
 
-void *test(void *pp)
+int	main(int ac, char **av)
 {
-	t_philo *philo;
+	t_struct	ma_structure;
 
-	philo = (t_philo *) pp;
-	int i = 0;
-	while(i != 2)
+	if (ac > 6)
+		printf("Erreur : trop d'arguments\n");
+	else if (ac < 5)
+		printf("Erreur : pas assez d'arguments\n");
+	else if (ac == 6 || ac == 5)
 	{
-		eat(philo);
-		i++;
-	}
-	return (NULL);
-}
-
-int thread_init(t_data *data)
-{
-    int			i;
-	pthread_t	t0;
-
-	i = -1;
-	data->start_time = get_time();
-	if (data->nombre_repas > 0)
-	{
-		pthread_create(&t0, NULL, &test, &data->philos[i]);
-	}
-	while (++i < data->nombre_philo)
-	{
-		pthread_create(&data->tid[i], NULL, &test, &data->philos[i]);
-		usleep(1);
-	}
-	i = -1;
-	while (++i < data->nombre_philo)
-	{
-		pthread_join(data->tid[i], NULL);
+		if (!parsing(ac, av, &ma_structure.info))
+		{
+			gettimeofday(&ma_structure.info.debut, NULL);
+			if (ft_create_tab(&ma_structure))
+				printf("erreur\n");
+		}
 	}
 	return (0);
-}
-
-int main(int ac, char **av)
-{
-    t_data	data;
-	
-    if(ac < 5 || ac > 6)
-	{
-		return (1);
-	}
-    else if(init(&data,ac,av))
-	{
-		return (1);
-	}
-	thread_init(&data);
-	return 0;
 }

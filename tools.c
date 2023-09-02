@@ -3,50 +3,93 @@
 /*                                                        :::      ::::::::   */
 /*   tools.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yatamago <yatamago@student.42.fr>          +#+  +:+       +#+        */
+/*   By: soleil <soleil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/24 14:51:24 by ilona             #+#    #+#             */
-/*   Updated: 2023/08/25 23:26:44 by yatamago         ###   ########.fr       */
+/*   Created: 2023/09/01 14:48:38 by soleil            #+#    #+#             */
+/*   Updated: 2023/09/02 15:34:20 by soleil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "philosopher.h"
 
-int	get_time(void)
+// Transforme une string en int
+int	ft_atoi(const char *nptr)
 {
-	struct timeval	tv;
+	int	result;
+	int	i;
+	int	sign;
 
-	if (gettimeofday(&tv, NULL))
-		return (-1);
-	return ((tv.tv_sec * (int)1000) + (tv.tv_usec / 1000));
+	sign = 1;
+	i = 0;
+	result = 0;
+	while ((9 <= nptr[i] && nptr[i] <= 13) || nptr[i] == ' ')
+		i++;
+	if (nptr[i] == '-' || nptr[i] == '+')
+	{
+		if (nptr[i] == '-')
+			sign = sign * -1;
+		i++;
+	}
+	while (nptr[i] >= '0' && nptr[i] <= '9')
+	{
+		result = result * 10 + nptr[i] - 48;
+		i++;
+	}
+	return (result * sign);
 }
 
-void message(char *str, t_philo *philo)
+// Donne le temps en millisecondes depuis le lancement du programme
+long int	ft_time(t_philosophe *philo)
 {
-	
-	if(strcmp(str,"eat") == 0)
+	struct timeval	rn;
+	long int		diff_ms;
+
+	gettimeofday(&rn, NULL);
+	diff_ms = (rn.tv_sec - philo->info->debut.tv_sec) * 1000;
+	diff_ms += (rn.tv_usec - philo->info->debut.tv_usec) / 1000;
+	return (diff_ms);
+}
+
+long int	ft_time_diff_ms(struct timeval debut, struct timeval actuel)
+{
+	long int	diff_ms;
+
+	diff_ms = (actuel.tv_sec - debut.tv_sec) * 1000;
+	diff_ms += (actuel.tv_usec - debut.tv_usec) / 1000;
+	return (diff_ms);
+}
+
+// Fonction usleep recréée en millisecondes
+void	ft_usleep(int tmp, t_philosophe *philo)
+{
+	struct timeval	debut;
+	struct timeval	actuel;
+
+	gettimeofday(&debut, NULL);
+	gettimeofday(&actuel, NULL);
+	while (tmp > ft_time_diff_ms(debut, actuel) && ft_verif_philos(philo))
 	{
-		pthread_mutex_lock(&philo->data->write);
-		printf("%d is eating\n", philo->id);
-		pthread_mutex_unlock(&philo->data->write);
+		usleep(500);
+		gettimeofday(&actuel, NULL);
 	}
-	else if(strcmp(str,"think") == 0)
+}
+
+// Print en utilisant des mutex
+int	ft_print(t_philosophe *actuel, char *str, int eat_or_not)
+{
+	pthread_mutex_lock(&actuel->info->m_printf);
+	if (!ft_verif_philos(actuel))
 	{
-		pthread_mutex_lock(&philo->data->write);
-		printf("%d is thinking\n", philo->id);
-		pthread_mutex_unlock(&philo->data->write);
+		pthread_mutex_unlock(&actuel->info->m_printf);
+		return (1);
 	}
-	else if(strcmp(str,"sleep") == 0)
+	if (eat_or_not == 1)
 	{
-		pthread_mutex_lock(&philo->data->write);
-		printf("%d is sleeping\n", philo->id);
-		pthread_mutex_unlock(&philo->data->write);
+		pthread_mutex_lock(&actuel->m_tod);
+		actuel->time_of_death = ft_time(actuel) + actuel->info->ttd;
+		pthread_mutex_unlock(&actuel->m_tod);
 	}
-	else if(strcmp(str,"fork") == 0)
-	{
-		pthread_mutex_lock(&philo->data->write);
-		printf("%d has taken a fork\n", philo->id);
-		pthread_mutex_unlock(&philo->data->write);
-	}
+	printf(" %ld	%d	%s\n", labs(ft_time(actuel)), actuel->i, str);
+	pthread_mutex_unlock(&actuel->info->m_printf);
+	return (0);
 }

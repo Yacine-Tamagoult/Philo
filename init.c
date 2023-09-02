@@ -3,101 +3,104 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yatamago <yatamago@student.42.fr>          +#+  +:+       +#+        */
+/*   By: soleil <soleil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/20 18:25:45 by soleil            #+#    #+#             */
-/*   Updated: 2023/08/25 22:26:28 by yatamago         ###   ########.fr       */
+/*   Updated: 2023/09/02 16:23:20 by soleil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosopher.h"
 
-
-
-void init_philo(t_data *data)
+// Initialise le tableau de strucutures
+void	ft_init_tableau(t_struct *ma_structure)
 {
-    int i;
+	int	i;
 
-    i = 0;
-    while(i < data->nombre_philo)
-    {
-        data->philos[i].data = data;
-        data->philos[i].id = i + 1;
-        data->philos[i].time_to_die = data->temps_mort;
-        data->philos[i].eat_cont = 0;
-        data->philos[i].eating = 0;
-        data->philos[i].status = 1;
-        pthread_mutex_init(&data->philos[i].lock, NULL);
-        i++;
-    }
-}
-
-int init_fourchette(t_data *data)
-{
-    int i;
-    
-    i = -1;
-    while(++i < data->nombre_philo)
-    {
-        pthread_mutex_init(&data->fourchette[i],NULL);
-    }
-    i = 0;
-    while (i < data->nombre_philo)
+	i = 0;
+	while (i < ma_structure->info.nb_de_philos)
 	{
-		data->philos[i].l_fork = &data->fourchette[i];
-		data->philos[i].r_fork = &data->fourchette[i - 1];
+		ma_structure->tab[i].vie = 0;
+		ma_structure->tab[i].sdk = 3;
+		ma_structure->tab[i].philo = i;
+		ma_structure->tab[i].i_ate = 0;
+		ma_structure->tab[i].i = i + 1;
+		ma_structure->tab[i].nb_de_repas = 0;
+		ma_structure->tab[i].fourchette_g = NULL;
+		ma_structure->tab[i].info = &ma_structure->info;
+		pthread_mutex_init(&ma_structure->tab[i].m_tod, NULL);
+		pthread_mutex_init(&ma_structure->tab[i].mutex, NULL);
+		pthread_mutex_init(&ma_structure->tab[i].fourchette_d, NULL);
+		pthread_mutex_lock(&ma_structure->tab[i].mutex);
+		ma_structure->tab[i].time_of_death = ma_structure->info.ttd;
+		pthread_mutex_unlock(&ma_structure->tab[i].mutex);
 		i++;
 	}
-    printf("salutttttttt\n");
-    return (0);
 }
 
-int	alloc(t_data *data)
+// Crée le tableau de structures
+int	ft_create_tab(t_struct *m_s)
 {
-    
-	data->tid = malloc(sizeof(pthread_t) * data->nombre_philo);
-	if (!data->tid)
+	int	i;
+
+	i = 0;
+	m_s->tab = malloc(sizeof(t_philosophe) * m_s->info.nb_de_philos);
+	if (!m_s->tab)
 		return (1);
-	data->fourchette = malloc(sizeof(pthread_mutex_t) * data->nombre_philo);
-	if (!data->fourchette)
-		return (1);
-	data->philos = malloc(sizeof(t_philo) * data->nombre_philo);
-	if (!data->philos)
-		return (1);
+	ft_init_tableau(m_s);
+	i = m_s->info.nb_de_philos - 1;
+	while (i >= 0)
+	{
+		if (i != 0)
+			m_s->tab[i].fourchette_g = &m_s->tab[i - 1].fourchette_d;
+		else
+			m_s->tab[i].fourchette_g
+				= &m_s->tab[m_s->info.nb_de_philos - 1].fourchette_d;
+		i--;
+	}
+	ft_lunch_thread(m_s);
+	free(m_s->tab);
 	return (0);
 }
 
-int init_data(t_data *data,int ac, char **av)
+//	Lance chaque threads 
+int	ft_lunch_thread(t_struct *m_s)
 {
-    
-    data->nombre_philo = atoi(av[1]);
-    data->temps_mort = atoi(av[2]);
-    data->temps_repas = atoi(av[3]);
-    data->temps_repos = atoi(av[4]);
-    if(ac == 6)
-        data->nombre_repas = atoi(av[5]);
-    else
-        data->nombre_repas = -1;
-    if (data->nombre_philo <= 0 || data->nombre_philo > 200 || data->temps_mort <= 0
-		|| data->temps_repas <= 0 || data->temps_repos <= 0)
-            return (1);
-    data->mort = 0;
-    data->finis = 0;
-    pthread_mutex_init(&data->write, NULL);
-	pthread_mutex_init(&data->lock, NULL);
+	int	i;
 
-    return (0);
+	i = 0;
+	while (i < m_s->info.nb_de_philos)
+	{
+		if (pthread_create(&m_s->tab[i].philo, NULL, ft_philo, &m_s->tab[i]))
+		{
+			printf("la création du thread numero %d a echouée\n", m_s->tab[i].i);
+			return (1);
+		}
+		i++;
+	}
+	if (m_s->info.nb_de_philos == 1)
+	{
+		check_death(m_s);
+		return (0);
+	}
+	check_death(m_s);
+	return (ft_join(m_s));
 }
 
-int init(t_data *data,int ac, char **av)
+// Utilise la fontion pthread_join sur tous les threads
+int	ft_join(t_struct *ma_structure)
 {
-    
-    if(init_data(data,ac,av))
-        return (1);
-    else if(alloc(data))
-        return(1);
-    else if(init_fourchette(data))
-        return(1);
-    init_philo(data);
-    return (0);
+	int	i;
+
+	i = 0;
+	while (i < ma_structure->info.nb_de_philos)
+	{
+		if (pthread_join(ma_structure->tab[i].philo, NULL))
+		{
+			printf("le join numero %d a echoue\n", ma_structure->tab[i].i);
+			return (1);
+		}
+		i++;
+	}
+	return (0);
 }

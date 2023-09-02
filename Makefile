@@ -1,48 +1,21 @@
-SRCDIR = src
-OBJDIR = points_o
+NAME = philo
 
-SRCS = main.c \
-	init.c \
-	tools.c \
-	action.c \
+SRCS = main.c tools.c init.c action.c parsing.c robocop.c action2.c
+OBJS = ${SRCS:.c=.o}
 
-OBJS = $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.c=.o)))
+CFLAGS = -g3 -Wall -Werror -Wextra
 
-CC = gcc
+all: ${NAME}
 
-CFLAGS = -g -Wall -Werror -Wextra -pthread
+${NAME}: ${OBJS}
+	cc -g3 ${CFLAGS} ${OBJS} -o ${NAME}
+	
+clean:
+	rm -rf ${OBJS}
 
-NAME = philosophers
-
-all : $(NAME)
-
-$(NAME): $(OBJS) | $(OBJDIR)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
-	@echo "🧚 tout est prêt 🧚"
-
-$(OBJDIR)/%.o:%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(OBJDIR):
-	mkdir -p $(OBJDIR)
-
-clean :
-	rm -rf $(OBJDIR)
-	clear
-	@echo "🧚 tout propre 🧚"
-
-fclean : clean
-	rm -f $(NAME)
-	clear
-	@echo "🧚 tout propre 🧚"
-
-git : fclean
-	git add *
-	git commit
-	git push
+fclean: clean
+	rm -rf ${NAME}
 
 re : fclean all
 
-.PHONY : all clean fclean re git
-
-.SILENT : all clean fclean re git $(NAME) $(OBJDIR)
+.PHONY: clean fclean all re	

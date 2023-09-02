@@ -3,56 +3,108 @@
 /*                                                        :::      ::::::::   */
 /*   philosopher.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yatamago <yatamago@student.42.fr>          +#+  +:+       +#+        */
+/*   By: soleil <soleil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/20 17:47:23 by soleil            #+#    #+#             */
-/*   Updated: 2023/08/25 23:18:18 by yatamago         ###   ########.fr       */
+/*   Created: 2023/09/02 15:31:56 by soleil            #+#    #+#             */
+/*   Updated: 2023/09/02 15:37:52 by soleil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdint.h>
-# include <stdbool.h>
-# include <pthread.h>
+#ifndef PHILOSOPHER_H
+# define PHILOSOPHER_H
+
 # include <sys/time.h>
-#include <string.h>
+# include <pthread.h>
+# include <stdlib.h>
+# include <string.h>
+# include <unistd.h>
+# include <stdio.h>
 
-typedef struct s_philo
+typedef struct s_info
 {
-	struct s_data	*data;//
-	pthread_t		t1; //0
-	int				id; //
-	int				eat_cont; //
-	int				status; //
-	int				eating; //
-	int		time_to_die; //
-	pthread_mutex_t	lock; //
-	pthread_mutex_t	*r_fork; //
-	pthread_mutex_t	*l_fork; //
-}	t_philo;
+	int						ttd;
+	int						tte;
+	int						tts;
+	int						i_ate;
+	int						index;
+	int						i_mort;
+	int						notepme;
+	int						nb_de_philos;
+	struct timeval			debut;
+	pthread_mutex_t			m_ate;
+	pthread_mutex_t			m_stop;
+	pthread_mutex_t			m_printf;
+	pthread_mutex_t			mutex_mort;
+	struct s_philosophes	**actuel_philo;
+}	t_info;
 
-typedef struct s_data
+typedef struct s_philosophes
 {
-	pthread_t		*tid; //
-	int				nombre_philo; //
-	int				nombre_repas; //
-	int				mort; //
-	int				finis; //
-	t_philo			*philos; //
-	int		temps_mort; //
-	int		temps_repas; //
-	int		temps_repos; //
-	int		start_time;
-	pthread_mutex_t	*fourchette; //
-	pthread_mutex_t	lock; // 
-	pthread_mutex_t	write; //
-}	t_data;
+	int						i;
+	int						vie;
+	int						sdk;
+	int						i_ate;
+	int						nb_de_repas;
+	void					*fourchette_g;
+	long int				time_of_death;
+	pthread_t				philo;
+	struct s_info			*info;
+	pthread_mutex_t			m_tod;
+	pthread_mutex_t			mutex;
+	pthread_mutex_t			fourchette_d;
+}	t_philosophe;
 
-int get_time(void);
-int init(t_data *data,int ac, char **av);
-int thread_init(t_data *data);
-void *test();
-void message(char *str, t_philo *philo);
-void eat(t_philo *philo);
+typedef struct s_struct
+{
+	struct s_info			info;
+	struct s_philosophes	*tab;
+}	t_struct;
+
+// Checkers
+
+int				ft_isdigit(int c);
+int				ft_onlynum(char **av, int j, int i);
+int				parsing(int ac, char **av, t_info *ma_structure);
+void			ft_init_info(char **av, t_info *info);
+
+// Creation thread
+
+int				ft_join(t_struct *ma_structure);
+int				ft_init_struct(t_struct *ma_structure);
+int				ft_lunch_thread(t_struct *ma_structure);
+void			ft_init_tableau(t_struct *ma_structure);
+int				ft_create_tab(t_struct *m_s);
+
+// Utils
+
+int				ft_atoi(const char *nptr);
+int				ft_print(t_philosophe *actuel, char *str, int eat_or_not);
+void			ft_usleep(int tmp, t_philosophe *philo);
+long int		ft_time(t_philosophe *philo);
+long int		ft_time_diff_ms(struct timeval debut, struct timeval actuel);
+
+// Utils 2
+
+void			ft_destroy(t_struct *m_s);
+
+//	Repas
+
+int				ft_eat(t_philosophe *actuel);
+void			*ft_philo(void *philo);
+void			ft_countrepas(t_philosophe *actuel);
+void			ft_throw_fork(t_philosophe *actuel);
+
+// Routine
+
+int				ft_sleep(t_philosophe *actuel);
+int				ft_gauchers(t_philosophe *actuel);
+int				ft_droitiers(t_philosophe *actuel);
+
+// Verif Mort
+
+int				ft_mort(t_philosophe *actuel);
+int				ft_check_death_deux(t_struct *m_s, int j);
+int				ft_verif_philos(t_philosophe *actuel);
+void			check_death(t_struct *m_s);
+
+#endif
