@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosopher.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soleil <soleil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ilona <ilona@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/02 15:31:56 by soleil            #+#    #+#             */
-/*   Updated: 2023/09/02 15:37:52 by soleil           ###   ########.fr       */
+/*   Updated: 2023/09/03 15:33:44 by ilona            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,5 +106,8 @@ int				ft_mort(t_philosophe *actuel);
 int				ft_check_death_deux(t_struct *m_s, int j);
 int				ft_verif_philos(t_philosophe *actuel);
 void			check_death(t_struct *m_s);
+
+void			unphilo(t_struct *m_s);
+void			*onephilo(void *philo);
 
 #endif

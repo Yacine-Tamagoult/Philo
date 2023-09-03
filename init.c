@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soleil <soleil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ilona <ilona@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/20 18:25:45 by soleil            #+#    #+#             */
-/*   Updated: 2023/09/02 16:41:57 by soleil           ###   ########.fr       */
+/*   Updated: 2023/09/03 15:38:46 by ilona            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,19 +69,23 @@ int	ft_lunch_thread(t_struct *m_s)
 	int	i;
 
 	i = 0;
-	while (i < m_s->info.nb_de_philos)
-	{
-		if (pthread_create(&m_s->tab[i].philo, NULL, ft_philo, &m_s->tab[i]))
-		{
-			printf("la création du thread numero %d a echouée\n", m_s->tab[i].i);
-			return (1);
-		}
-		i++;
-	}
 	if (m_s->info.nb_de_philos == 1)
 	{
-		check_death(m_s);
-		return (0);
+		unphilo(m_s);
+	}
+	else
+	{
+		while (i < m_s->info.nb_de_philos)
+		{
+			if (pthread_create(&m_s->tab[i].philo, NULL, ft_philo,
+					&m_s->tab[i]))
+			{
+				printf("la création du thread numero %d a echouée\n",
+					m_s->tab[i].i);
+				return (1);
+			}
+			i++;
+		}
 	}
 	check_death(m_s);
 	return (ft_join(m_s));

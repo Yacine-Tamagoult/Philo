@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   action2.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soleil <soleil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ilona <ilona@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/02 12:49:23 by soleil            #+#    #+#             */
-/*   Updated: 2023/09/02 15:35:24 by soleil           ###   ########.fr       */
+/*   Updated: 2023/09/03 15:39:07 by ilona            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,4 +59,23 @@ int	ft_droitiers(t_philosophe *actuel)
 		return (1);
 	}
 	return (0);
+}
+
+void	unphilo(t_struct *m_s)
+{
+	pthread_create(&m_s->tab[0].philo, NULL, onephilo, &m_s->tab[0]);
+}
+
+void	*onephilo(void *philo)
+{
+	t_philosophe	*onemore;
+
+	onemore = (t_philosophe *) philo;
+	pthread_mutex_lock(&onemore->fourchette_d);
+	ft_print(onemore, "has taken a fork", 0);
+	pthread_mutex_unlock(&onemore->fourchette_d);
+	pthread_mutex_lock(&onemore->info->mutex_mort);
+	onemore->info->i_mort = 0;
+	pthread_mutex_unlock(&onemore->info->mutex_mort);
+	return (NULL);
 }
